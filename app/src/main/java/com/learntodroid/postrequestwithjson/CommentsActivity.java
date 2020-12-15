@@ -24,6 +24,11 @@ public class CommentsActivity extends AppCompatActivity {
     private EditText title, comment, author;
     private Button send;
 
+    private String id;
+    private String ime_naprave;
+    private String longitude;
+    private String latitude;
+
     private CommentsRepository commentsRepository;
 
     @Override
@@ -37,15 +42,21 @@ public class CommentsActivity extends AppCompatActivity {
         radioGroup = findViewById(R.id.activity_comments_post_type);
         send = findViewById(R.id.activity_comments_send);
 
+        id = "2";
+        ime_naprave  = "Gasper Tine";
+        longitude = "15.56768";
+        latitude = "46.12346";
+
         commentsRepository = commentsRepository.getInstance();
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Comment c = new Comment(
-                        title.getText().toString(),
-                        comment.getText().toString(),
-                        author.getText().toString()
+                        id,
+                        ime_naprave,
+                        longitude,
+                        latitude
                 );
 
                 switch(radioGroup.getCheckedRadioButtonId()) {
@@ -56,7 +67,7 @@ public class CommentsActivity extends AppCompatActivity {
                         commentsRepository.getCommentsService().createComment(c).enqueue(new Callback<Comment>() {
                             @Override
                             public void onResponse(Call<Comment> call, Response<Comment> r) {
-                                Toast.makeText(getApplicationContext(), "Comment " + r.body().getComment() + " created", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getApplicationContext(), "Comment " + r.body().getComment() + " created", Toast.LENGTH_SHORT).show();
                             }
                             @Override
                             public void onFailure(Call<Comment> call, Throwable t) {
@@ -65,29 +76,30 @@ public class CommentsActivity extends AppCompatActivity {
                         });
                         return;
 
-                    case R.id.activity_comments_post_type_form_encoded_fields:
-                        commentsRepository.getCommentsService().createComment(c.getTitle(), c.getComment(), c.getAuthor()).enqueue(new Callback<Comment>() {
-                            @Override
-                            public void onResponse(Call<Comment> call, Response<Comment> r) {
-                                Toast.makeText(getApplicationContext(), "Comment " + r.body().getComment() + " created", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onFailure(Call<Comment> call, Throwable t) {
-                                Toast.makeText(getApplicationContext(), "Error Creating Comment: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        return;
+//                    case R.id.activity_comments_post_type_form_encoded_fields:
+//                        commentsRepository.getCommentsService().createComment(c.getIme_naprave()).enqueue(new Callback<Comment>() {
+//                            @Override
+//                            public void onResponse(Call<Comment> call, Response<Comment> r) {
+//                                //Toast.makeText(getApplicationContext(), "Comment " + /*r.body().getComment()*/ + " created", Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Call<Comment> call, Throwable t) {
+//                                Toast.makeText(getApplicationContext(), "Error Creating Comment: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                        return;
 
                     case R.id.activity_comments_post_type_form_encoded_field_set:
                         HashMap<String, String> fields = new HashMap<>();
-                        fields.put("title", c.getTitle());
-                        fields.put("comment", c.getComment());
-                        fields.put("author", c.getAuthor());
+                        fields.put("id", c.getId());
+                        fields.put("ime_naprave", c.getIme_naprave());
+                        fields.put("longitude", c.getLongitude());
+                        fields.put("latitude", c.getLatitude());
                         commentsRepository.getCommentsService().createComment(fields).enqueue(new Callback<Comment>() {
                             @Override
                             public void onResponse(Call<Comment> call, Response<Comment> r) {
-                                Toast.makeText(getApplicationContext(), "Comment " + r.body().getComment() + " created", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Comment " + r.body().getIme_naprave() + " created", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override

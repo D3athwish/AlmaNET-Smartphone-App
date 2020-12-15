@@ -2,31 +2,57 @@ package com.learntodroid.postrequestwithjson;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Comment {
-    @SerializedName("title")
-    private String title;
+public class Comment
+{
+    //Searlized name določa dejansko vrednost v JSON!
+    @SerializedName("ID")
+    private String id;
 
-    @SerializedName("comment")
-    private String comment;
+    @SerializedName("Ime_naprave")
+    private String ime_naprave;
 
-    @SerializedName("author")
-    private String author;
+    @SerializedName("Lon_input")
+    private String longitude;
 
-    public Comment(String title, String comment, String author) {
-        this.title = title;
-        this.comment = comment;
-        this.author = author;
+    @SerializedName("Lat_input")
+    private String latitude;
+
+    /*
+    * Referenca:
+    * {
+        "ID":"2",
+        "Ime_naprave":"Gasper Tine",
+        "Lon_input":"15.56767",
+        "Lat_input":"46.12345"
+    }
+    *
+    * Tako mora biti nastavljen JSON za POST
+    *
+    *
+    * */
+
+
+    //Order is very important!
+    public Comment(String id, String ime_naprave, String latitude, String longitude) {
+        this.id = id;
+        this.ime_naprave = ime_naprave;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public String getTitle() {
-        return title;
+    public String getId() {
+        return id;
     }
 
-    public String getComment() {
-        return comment;
+    public String getIme_naprave() {
+        return ime_naprave;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public String getLatitude() {
+        return latitude;
     }
 }

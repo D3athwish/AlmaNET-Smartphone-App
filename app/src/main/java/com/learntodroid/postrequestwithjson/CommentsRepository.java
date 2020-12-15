@@ -23,7 +23,7 @@ public final class CommentsRepository {
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:5000")
+                .baseUrl("https://almanetapi.azurewebsites.net/")
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
