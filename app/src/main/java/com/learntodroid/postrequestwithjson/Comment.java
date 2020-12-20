@@ -36,10 +36,11 @@ public class Comment
     public Comment(String id, String ime_naprave, String latitude, String longitude) {
         this.id = id;
         this.ime_naprave = ime_naprave;
-        this.latitude = latitude;
         this.longitude = longitude;
+        this.latitude = latitude;
     }
 
+    //Return vrednosti
     public String getId() {
         return id;
     }

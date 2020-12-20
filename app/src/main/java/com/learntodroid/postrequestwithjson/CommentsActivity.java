@@ -44,8 +44,8 @@ public class CommentsActivity extends AppCompatActivity {
 
         id = "2";
         ime_naprave  = "Gasper Tine";
-        longitude = "15.56768";
-        latitude = "46.12346";
+        longitude = "15.56769";
+        latitude = "46.12340";
 
         commentsRepository = commentsRepository.getInstance();
 
@@ -55,8 +55,8 @@ public class CommentsActivity extends AppCompatActivity {
                 Comment c = new Comment(
                         id,
                         ime_naprave,
-                        longitude,
-                        latitude
+                        latitude,
+                        longitude
                 );
 
                 switch(radioGroup.getCheckedRadioButtonId()) {
