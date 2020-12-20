@@ -4,7 +4,7 @@ import android.widget.EditText;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Comment
+public class Post
 {
     //Searlized name določa dejansko vrednost v JSON!
     @SerializedName("ID")
@@ -35,7 +35,7 @@ public class Comment
 
 
     //Order is very important!
-    public Comment(String id, String ime_naprave, String latitude, String longitude) {
+    public Post(String id, String ime_naprave, String latitude, String longitude) {
         this.id = id;
         this.ime_naprave = ime_naprave;
         this.longitude = longitude;

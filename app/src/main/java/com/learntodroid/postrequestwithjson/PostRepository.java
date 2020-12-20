@@ -5,19 +5,19 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public final class CommentsRepository {
-    private static CommentsRepository instance;
+public final class PostRepository {
+    private static PostRepository instance;
 
-    private CommentsService commentsService;
+    private PostService commentsService;
 
-    public static CommentsRepository getInstance() {
+    public static PostRepository getInstance() {
         if (instance == null) {
-            instance = new CommentsRepository();
+            instance = new PostRepository();
         }
         return instance;
     }
 
-    public CommentsRepository() {
+    public PostRepository() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -28,10 +28,10 @@ public final class CommentsRepository {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        commentsService = retrofit.create(CommentsService.class);
+        commentsService = retrofit.create(PostService.class);
     }
 
-    public CommentsService getCommentsService() {
+    public PostService getCommentsService() {
         return commentsService;
     }
 }
