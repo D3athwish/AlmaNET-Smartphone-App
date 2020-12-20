@@ -1,5 +1,7 @@
 package com.learntodroid.postrequestwithjson;
 
+import android.widget.EditText;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Comment
@@ -39,6 +41,7 @@ public class Comment
         this.longitude = longitude;
         this.latitude = latitude;
     }
+
 
     //Return vrednosti
     public String getId() {

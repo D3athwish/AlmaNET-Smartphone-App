@@ -4,56 +4,44 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    
-    <RadioGroup
+
+
+    <TextView
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/activity_comments_post_type">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="JSON Body"
-            android:id="@+id/activity_comments_post_type_json_body" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Form Encoded (Fields)"
-            android:id="@+id/activity_comments_post_type_form_encoded_fields" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Form Encoded (Field Set)"
-            android:id="@+id/activity_comments_post_type_form_encoded_field_set" />
-
-    </RadioGroup>
+        android:text="Send a POST request:" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Comment Title"
-        android:id="@+id/activity_comments_title"
+        android:hint="ID"
+        android:id="@+id/idInputEditText"
         />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Comment Body"
-        android:id="@+id/activity_comments_comment"/>
+        android:hint="Ime naprave"
+        android:id="@+id/deviceNameInput"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Author"
-        android:id="@+id/activity_comments_author"/>
-    
+        android:hint="Longitude"
+        android:id="@+id/longitudeInput"/>
+
+    <EditText
+        android:id="@+id/latitudeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Latitude" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send Request"
-        android:id="@+id/activity_comments_send"/>
+        android:text="POST"
+        android:id="@+id/postButton"
+        android:onClick="v"/>
 
 </LinearLayout>
