@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -24,6 +25,8 @@ public class GetActivity extends AppCompatActivity
     private Button postButton;
     private Button getButton;
 
+    private EditText inputIdToGet;
+
     private String TAG = GetActivity.class.getSimpleName();
     private ListView lv;
 
@@ -37,6 +40,9 @@ public class GetActivity extends AppCompatActivity
         postButton = findViewById(R.id.postButton);
         getButton = findViewById(R.id.getButton);
 
+        // Get the ID we want to get here:
+        inputIdToGet = (EditText) findViewById(R.id.inputIdToGet);
+
         getButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -45,7 +51,10 @@ public class GetActivity extends AppCompatActivity
 
                 lv = (ListView) findViewById(R.id.list);
 
-                new GetContacts().execute();
+                String currentId = inputIdToGet.getText().toString();
+
+                // Passing the Id we want to GET
+                new GetContacts(currentId).execute();
             }
         });
 
@@ -65,19 +74,27 @@ public class GetActivity extends AppCompatActivity
     }
 
     private class GetContacts extends AsyncTask<Void, Void, Void>{
+
+        private final String currentId;
+
+        // Passing currentId to fetch the JSON we want
+        public GetContacts(String currentId) {
+            this.currentId = currentId;
+        }
+
         @Override
-        protected void onPreExecute() {
+        public void onPreExecute() {
             super.onPreExecute();
             Toast.makeText(GetActivity.this, "JSON se prenaša...", Toast.LENGTH_LONG).show();
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        public Void doInBackground(Void... voids) {
             HttpHandler sh = new HttpHandler();
 
             //Making a request to url and getting a response
+            String url = "https://almanetapi.azurewebsites.net/api/values/" + currentId;
 
-            String url = "https://almanetapi.azurewebsites.net/api/values/1";
             String jsonStr = sh.makeServiceCall(url);
 
             Log.e(TAG, "Response from url: " + jsonStr);
@@ -147,7 +164,7 @@ public class GetActivity extends AppCompatActivity
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        public void onPostExecute(Void result) {
             super.onPostExecute(result);
             ListAdapter adapter = new SimpleAdapter(GetActivity.this, contactList,
                     R.layout.list_item, new String[] {"id", "naprava", "longitude", "latitude"},

@@ -43,7 +43,7 @@ public class PostActivity extends AppCompatActivity {
         postButton = (Button) findViewById(R.id.postButton);
         getButton= (Button) findViewById(R.id.getButton);
 
-        // Getting value of user input:
+        // Get field id
         idInput = (EditText) findViewById(R.id.idInputEditText);
         deviceNameInput = (EditText) findViewById(R.id.deviceNameInput);
         longitudeInput = (EditText) findViewById(R.id.longitudeInput);
