@@ -38,8 +38,8 @@ public class Post
     public Post(String id, String ime_naprave, String latitude, String longitude) {
         this.id = id;
         this.ime_naprave = ime_naprave;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
     }
 
 
