@@ -1,7 +1,5 @@
 package com.learntodroid.postrequestwithjson;
 
-import android.widget.EditText;
-
 import com.google.gson.annotations.SerializedName;
 
 public class Post
