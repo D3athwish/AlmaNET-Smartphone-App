@@ -1,10 +1,11 @@
 package com.learntodroid.postrequestwithjson;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -27,7 +28,7 @@ import com.google.android.gms.location.LocationServices;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Comment;
 
-import java.util.Locale;
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,8 +38,9 @@ import retrofit2.Response;
 // TODO: But I'm tired ;_;
 public class PostActivity extends AppCompatActivity
 {
+    public ArrayList<Float> gpsLatLong = new ArrayList<>();
 
-    private static final String TAG = "TAG" ;
+    private static final String TAG = "TAG";
 
     // Location stuff
 
@@ -60,8 +62,7 @@ public class PostActivity extends AppCompatActivity
     private EditText longitudeInput;
     private EditText latitudeInput;
 
-    // Handler za autoPOST
-    // Not sure if I can move this somewhere else, probably can?
+    // Handler for autoPOST
     private final Handler handler = new Handler();
     private final Runnable runnable = new Runnable()
     {
@@ -69,15 +70,18 @@ public class PostActivity extends AppCompatActivity
         public void run() {
             Log.d(TAG, "autoPOST was executed!");
             sendPost();
-            handler.postDelayed(this, 10000);
+            // Modify the first digit, according to how many seconds we want in between our POST
+            // requests
+            handler.postDelayed(this, 60 * 1000);
         }
     };
 
     // TODO: Automate GPS fetching
     // TODO: This means that we have to:
-    // TODO: a) Get GPS Location ✔️
-    // TODO: b) Send the GPS location after getting it  ❌
-    // TODO: c) Automate this process with autoPOST ❌
+    // TODO: a) Get GPS Location ✔
+    // TODO: b) Send the GPS location after getting it  ✔
+    // TODO: c) Automate this process with autoPOST ✔
+    // TODO: App works! v1.0
 
     private PostRepository commentsRepository;
 
@@ -91,28 +95,36 @@ public class PostActivity extends AppCompatActivity
         //Klicanje buttona preko id-ja
         Button postButton = (Button) findViewById(R.id.postButton);
         Button getButton = (Button) findViewById(R.id.getButton);
+
+        @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch autoPostSwitch = (Switch) findViewById(R.id.autoPostSwitch);
 
         // Get field id
+        // TODO: We don't actually need any fields now, since we're doing all of this automatically
+        // TODO: We can probably remove these... ? Or we can keep them for debug/manual usage
         idInput = (EditText) findViewById(R.id.idInputEditText);
         deviceNameInput = (EditText) findViewById(R.id.deviceNameInput);
         longitudeInput = (EditText) findViewById(R.id.longitudeInput);
         latitudeInput = (EditText) findViewById(R.id.latitudeInput);
 
+        // TODO: Example of sent information
         // idInput = "2";
         // deviceNameInput = "Gasper Tine";
         // longitudeInput = "13.33337";
         // latitudeInput = "13.33338";
 
         commentsRepository = PostRepository.getInstance();
+
         autoPostSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    handler.postDelayed(runnable, 10000);
+                if (isChecked) {
+                    // We have to modify this number as well! Change accoriding to how many seconds
+                    // in between our POST calls
+                    handler.postDelayed(runnable, 60 * 1000);
 
-                }else{
+                } else {
                     Log.d(TAG, "autoPOST has been stopped!");
                     handler.removeCallbacks(runnable);
                 }
@@ -162,9 +174,38 @@ public class PostActivity extends AppCompatActivity
         {
             @Override
             public void onClick(View v) {
+
+                locationCallback = new LocationCallback()
+                {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        if (locationResult == null) {
+                            return;
+                        }
+                        for (Location location : locationResult.getLocations()) {
+                            if (location != null) {
+                                currentLatitude = (float) location.getLatitude();
+                                currentLongitude = (float) location.getLongitude();
+
+                                /*txtLongitude.setText(String.format(Locale.US, "%s", currentLongitude));
+                                 txtLatitude.setText(String.format(Locale.US, "%s", currentLatitude));*/
+
+                                if (mFusedLocationClient != null) {
+                                    mFusedLocationClient.removeLocationUpdates(locationCallback);
+                                }
+                            }
+                        }
+                    }
+                };
+
                 getLocation();
             }
         });
+
+        // We have to call location before we send a POST. I'm not sure why, but if we immediately
+        // Send a POST request even tho we get the location, it's always blank...
+        // I'm not sure if our automated solution will even work... will have to test...
+        getLocationButton.performClick();
     }
 
     private void openGetActivity() {
@@ -172,12 +213,15 @@ public class PostActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private void sendPost(){
+    private void sendPost() {
         // OBVEZNO moramo najprej iz EditText convertirati v String, ker mi podamo obliko EditText!
-        String idSend = idInput.getText().toString();
-        String deviceNameSend = deviceNameInput.getText().toString();
-        String latitudeSend = latitudeInput.getText().toString();
-        String longitudeSend = longitudeInput.getText().toString();
+        String idSend = String.valueOf(1);
+        // We are using Build.ID as a unique identifier, I'm not sure how unique this actually is
+        // We are not allowed to get IMEI this is a system limitation...
+        // This is possibly something we can improve...
+        String deviceNameSend = String.valueOf(Build.ID);
+        String latitudeSend = String.valueOf(gpsLatLong.get(0));
+        String longitudeSend = String.valueOf(gpsLatLong.get(1));
 
         Post post = new Post(
                 idSend,
@@ -186,6 +230,7 @@ public class PostActivity extends AppCompatActivity
                 longitudeSend
         );
 
+        Toast.makeText(getApplicationContext(), "Latitude: " + latitudeSend + " Longitude: " + longitudeSend, Toast.LENGTH_SHORT).show();
         //Don't know exactly how to implement POST without a callback right now, so yolo
         commentsRepository.getCommentsService().createComment(post).enqueue(new Callback<Comment>() {
             @Override
@@ -202,7 +247,6 @@ public class PostActivity extends AppCompatActivity
 
     private void getLocation() {
 
-
         if (ActivityCompat.checkSelfPermission(PostActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(PostActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -218,6 +262,10 @@ public class PostActivity extends AppCompatActivity
                 Log.d(TAG, "Latitude: " + currentLatitude);
                 Log.d(TAG, "Longitude: " + currentLongitude);
 
+                Toast.makeText(getApplicationContext(), "Latitude: " + currentLatitude + " Longitude: " + currentLongitude, Toast.LENGTH_SHORT).show();
+
+                gpsLatLong.add(currentLatitude);
+                gpsLatLong.add(currentLongitude);
 
             } else {
                 mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
