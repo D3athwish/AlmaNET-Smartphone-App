@@ -43,7 +43,6 @@ public class PostActivity extends AppCompatActivity
     private static final String TAG = "TAG";
 
     // Location stuff
-
     private FusedLocationProviderClient mFusedLocationClient;
 
     private float currentLatitude = (float) 0.0;
@@ -53,8 +52,6 @@ public class PostActivity extends AppCompatActivity
     private LocationCallback locationCallback;
 
     private Button getLocationButton;
-
-    private boolean isGPS = false;
 
     //All of the edit text fields and buttons:
     private EditText idInput;
@@ -72,7 +69,7 @@ public class PostActivity extends AppCompatActivity
             sendPost();
             // Modify the first digit, according to how many seconds we want in between our POST
             // requests
-            handler.postDelayed(this, 60 * 1000);
+            handler.postDelayed(this, 10 * 1000);
         }
     };
 
@@ -90,22 +87,22 @@ public class PostActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
 
-        Button getLocationButton = (Button) findViewById(R.id.getLocationButton);
+        Button getLocationButton = findViewById(R.id.getLocationButton);
 
         //Klicanje buttona preko id-ja
-        Button postButton = (Button) findViewById(R.id.postButton);
-        Button getButton = (Button) findViewById(R.id.getButton);
+        Button postButton = findViewById(R.id.postButton);
+        Button getButton = findViewById(R.id.getButton);
 
         @SuppressLint("UseSwitchCompatOrMaterialCode")
-        Switch autoPostSwitch = (Switch) findViewById(R.id.autoPostSwitch);
+        Switch autoPostSwitch = findViewById(R.id.autoPostSwitch);
 
         // Get field id
         // TODO: We don't actually need any fields now, since we're doing all of this automatically
         // TODO: We can probably remove these... ? Or we can keep them for debug/manual usage
-        idInput = (EditText) findViewById(R.id.idInputEditText);
-        deviceNameInput = (EditText) findViewById(R.id.deviceNameInput);
-        longitudeInput = (EditText) findViewById(R.id.longitudeInput);
-        latitudeInput = (EditText) findViewById(R.id.latitudeInput);
+        idInput = findViewById(R.id.idInputEditText);
+        deviceNameInput = findViewById(R.id.deviceNameInput);
+        longitudeInput = findViewById(R.id.longitudeInput);
+        latitudeInput = findViewById(R.id.latitudeInput);
 
         // TODO: Example of sent information
         // idInput = "2";
@@ -122,7 +119,7 @@ public class PostActivity extends AppCompatActivity
                 if (isChecked) {
                     // We have to modify this number as well! Change accoriding to how many seconds
                     // in between our POST calls
-                    handler.postDelayed(runnable, 60 * 1000);
+                    handler.postDelayed(runnable, 10 * 1000);
 
                 } else {
                     Log.d(TAG, "autoPOST has been stopped!");
@@ -144,8 +141,6 @@ public class PostActivity extends AppCompatActivity
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(10 * 1000); //10 seconds
         locationRequest.setFastestInterval(5 * 1000); //5 seconds
-
-        // Create callback and format output
 
         locationCallback = new LocationCallback()
         {
@@ -174,38 +169,13 @@ public class PostActivity extends AppCompatActivity
         {
             @Override
             public void onClick(View v) {
-
-                locationCallback = new LocationCallback()
-                {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        if (locationResult == null) {
-                            return;
-                        }
-                        for (Location location : locationResult.getLocations()) {
-                            if (location != null) {
-                                currentLatitude = (float) location.getLatitude();
-                                currentLongitude = (float) location.getLongitude();
-
-                                /*txtLongitude.setText(String.format(Locale.US, "%s", currentLongitude));
-                                 txtLatitude.setText(String.format(Locale.US, "%s", currentLatitude));*/
-
-                                if (mFusedLocationClient != null) {
-                                    mFusedLocationClient.removeLocationUpdates(locationCallback);
-                                }
-                            }
-                        }
-                    }
-                };
-
                 getLocation();
             }
         });
 
-        // We have to call location before we send a POST. I'm not sure why, but if we immediately
-        // Send a POST request even tho we get the location, it's always blank...
-        // I'm not sure if our automated solution will even work... will have to test...
-        getLocationButton.performClick();
+        // We have have to call this on startup because we can't make a POST without a predefined
+        // Location, I tried to do this in the function, but couldn't find the solution
+        getLocation();
     }
 
     private void openGetActivity() {
@@ -214,6 +184,8 @@ public class PostActivity extends AppCompatActivity
     }
 
     private void sendPost() {
+        getLocation();
+
         // OBVEZNO moramo najprej iz EditText convertirati v String, ker mi podamo obliko EditText!
         String idSend = String.valueOf(1);
         // We are using Build.ID as a unique identifier, I'm not sure how unique this actually is
@@ -230,7 +202,6 @@ public class PostActivity extends AppCompatActivity
                 longitudeSend
         );
 
-        Toast.makeText(getApplicationContext(), "Latitude: " + latitudeSend + " Longitude: " + longitudeSend, Toast.LENGTH_SHORT).show();
         //Don't know exactly how to implement POST without a callback right now, so yolo
         commentsRepository.getCommentsService().createComment(post).enqueue(new Callback<Comment>() {
             @Override
@@ -256,19 +227,28 @@ public class PostActivity extends AppCompatActivity
         }
         mFusedLocationClient.getLastLocation().addOnSuccessListener(PostActivity.this, location -> {
             if (location != null) {
+
+                mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+
                 currentLatitude = (float) location.getLatitude();
                 currentLongitude = (float) location.getLongitude();
 
                 Log.d(TAG, "Latitude: " + currentLatitude);
                 Log.d(TAG, "Longitude: " + currentLongitude);
 
-                Toast.makeText(getApplicationContext(), "Latitude: " + currentLatitude + " Longitude: " + currentLongitude, Toast.LENGTH_SHORT).show();
-
+                // Bug fixed: Make sure to clear arrayList before adding more GPS coordinates too it!
+                // The bug was caused beacuse we we're using gpsLatlong.get(0) and .get(1), but
+                // our indexes got bigger and bigger because we weren't clearing them!
+                gpsLatLong.clear();
                 gpsLatLong.add(currentLatitude);
                 gpsLatLong.add(currentLongitude);
 
+                Toast.makeText(getApplicationContext(), "Latitude: " + currentLatitude
+                        + " Longitude: " + currentLongitude, Toast.LENGTH_SHORT).show();
+
             } else {
-                mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
+                        null);
             }
         });
     }
