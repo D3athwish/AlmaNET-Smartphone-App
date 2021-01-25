@@ -9,10 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -34,8 +31,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-// TODO: We probably have to optimize the code a little bit...
-// TODO: But I'm tired ;_;
 public class PostActivity extends AppCompatActivity
 {
     public ArrayList<Float> gpsLatLong = new ArrayList<>();
@@ -51,14 +46,6 @@ public class PostActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
 
-    private Button getLocationButton;
-
-    //All of the edit text fields and buttons:
-    private EditText idInput;
-    private EditText deviceNameInput;
-    private EditText longitudeInput;
-    private EditText latitudeInput;
-
     // Handler for autoPOST
     private final Handler handler = new Handler();
     private final Runnable runnable = new Runnable()
@@ -72,13 +59,6 @@ public class PostActivity extends AppCompatActivity
             handler.postDelayed(this, 10 * 1000);
         }
     };
-
-    // TODO: Automate GPS fetching
-    // TODO: This means that we have to:
-    // TODO: a) Get GPS Location ✔
-    // TODO: b) Send the GPS location after getting it  ✔
-    // TODO: c) Automate this process with autoPOST ✔
-    // TODO: App works! v1.0
 
     private PostRepository commentsRepository;
 
@@ -96,13 +76,8 @@ public class PostActivity extends AppCompatActivity
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch autoPostSwitch = findViewById(R.id.autoPostSwitch);
 
-        // Get field id
-        // TODO: We don't actually need any fields now, since we're doing all of this automatically
-        // TODO: We can probably remove these... ? Or we can keep them for debug/manual usage
-        idInput = findViewById(R.id.idInputEditText);
-        deviceNameInput = findViewById(R.id.deviceNameInput);
-        longitudeInput = findViewById(R.id.longitudeInput);
-        latitudeInput = findViewById(R.id.latitudeInput);
+        // I removed all of the input fields, because they're not needed anymore
+        // We automatically build our input without user input
 
         // TODO: Example of sent information
         // idInput = "2";
@@ -112,19 +87,15 @@ public class PostActivity extends AppCompatActivity
 
         commentsRepository = PostRepository.getInstance();
 
-        autoPostSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    // We have to modify this number as well! Change accoriding to how many seconds
-                    // in between our POST calls
-                    handler.postDelayed(runnable, 10 * 1000);
+        autoPostSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // We have to modify this number as well! Change accoriding to how many seconds
+                // in between our POST calls
+                handler.postDelayed(runnable, 10 * 1000);
 
-                } else {
-                    Log.d(TAG, "autoPOST has been stopped!");
-                    handler.removeCallbacks(runnable);
-                }
+            } else {
+                Log.d(TAG, "autoPOST has been stopped!");
+                handler.removeCallbacks(runnable);
             }
         });
 
@@ -165,13 +136,7 @@ public class PostActivity extends AppCompatActivity
             }
         };
 
-        getLocationButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                getLocation();
-            }
-        });
+        getLocationButton.setOnClickListener(v -> getLocation());
 
         // We have have to call this on startup because we can't make a POST without a predefined
         // Location, I tried to do this in the function, but couldn't find the solution
@@ -203,32 +168,38 @@ public class PostActivity extends AppCompatActivity
         );
 
         //Don't know exactly how to implement POST without a callback right now, so yolo
-        commentsRepository.getCommentsService().createComment(post).enqueue(new Callback<Comment>() {
+        commentsRepository.getCommentsService().createComment(post).enqueue(new Callback<Comment>(){
             @Override
             public void onResponse(@NotNull Call<Comment> call, @NotNull Response<Comment> r) {
-                //Toast.makeText(getApplicationContext(), "Comment " + r.body().getId() + " created", Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Sending Post", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Sending Post", Toast.LENGTH_SHORT)
+                        .show();
             }
             @Override
             public void onFailure(@NotNull Call<Comment> call, @NotNull Throwable t) {
-                //Toast.makeText(getApplicationContext(), "Error Creating Comment: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // onFailure
             }
         });
     }
 
     private void getLocation() {
 
-        if (ActivityCompat.checkSelfPermission(PostActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(PostActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(PostActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(PostActivity.this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(PostActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+            ActivityCompat.requestPermissions(PostActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
                     1000);
 
         }
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(PostActivity.this, location -> {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(PostActivity.this,
+                location -> {
             if (location != null) {
 
-                mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
+                        null);
 
                 currentLatitude = (float) location.getLatitude();
                 currentLongitude = (float) location.getLongitude();
@@ -236,9 +207,6 @@ public class PostActivity extends AppCompatActivity
                 Log.d(TAG, "Latitude: " + currentLatitude);
                 Log.d(TAG, "Longitude: " + currentLongitude);
 
-                // Bug fixed: Make sure to clear arrayList before adding more GPS coordinates too it!
-                // The bug was caused beacuse we we're using gpsLatlong.get(0) and .get(1), but
-                // our indexes got bigger and bigger because we weren't clearing them!
                 gpsLatLong.clear();
                 gpsLatLong.add(currentLatitude);
                 gpsLatLong.add(currentLongitude);
