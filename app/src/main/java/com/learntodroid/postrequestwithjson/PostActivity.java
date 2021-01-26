@@ -113,8 +113,7 @@ public class PostActivity extends AppCompatActivity
         locationRequest.setInterval(10 * 1000); //10 seconds
         locationRequest.setFastestInterval(5 * 1000); //5 seconds
 
-        locationCallback = new LocationCallback()
-        {
+        locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
@@ -220,5 +219,4 @@ public class PostActivity extends AppCompatActivity
             }
         });
     }
-
 }
