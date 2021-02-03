@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,12 +16,21 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Comment;
@@ -31,9 +41,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PostActivity extends AppCompatActivity
+public class PostActivity extends FragmentActivity implements OnMapReadyCallback
 {
     public ArrayList<Float> gpsLatLong = new ArrayList<>();
+
+    public GoogleMap gMap;
 
     private static final String TAG = "TAG";
 
@@ -140,6 +152,9 @@ public class PostActivity extends AppCompatActivity
         // We have have to call this on startup because we can't make a POST without a predefined
         // Location, I tried to do this in the function, but couldn't find the solution
         getLocation();
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     private void openGetActivity() {
@@ -210,6 +225,8 @@ public class PostActivity extends AppCompatActivity
                 gpsLatLong.add(currentLatitude);
                 gpsLatLong.add(currentLongitude);
 
+                putMarker();
+
                 Toast.makeText(getApplicationContext(), "Latitude: " + currentLatitude
                         + " Longitude: " + currentLongitude, Toast.LENGTH_SHORT).show();
 
@@ -218,5 +235,21 @@ public class PostActivity extends AppCompatActivity
                         null);
             }
         });
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        gMap = googleMap;
+        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.getUiSettings().setZoomGesturesEnabled(true);
+        gMap.getUiSettings().setCompassEnabled(true);
+    }
+
+    public void putMarker(){
+        LatLng currentPosition = new LatLng(gpsLatLong.get(0), gpsLatLong.get(1));
+        gMap.addMarker(new MarkerOptions().position(currentPosition).title("Vaša lokacija"));
     }
 }
