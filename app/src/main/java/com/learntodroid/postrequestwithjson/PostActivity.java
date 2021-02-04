@@ -84,6 +84,7 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         //Klicanje buttona preko id-ja
         Button postButton = findViewById(R.id.postButton);
         Button getButton = findViewById(R.id.getButton);
+        Button clearMarkersButton = findViewById(R.id.clearMarkersButton);
 
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch autoPostSwitch = findViewById(R.id.autoPostSwitch);
@@ -117,6 +118,10 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         // onClick for switching between activites this one goes from POST to GET menu
         getButton.setOnClickListener(v -> openGetActivity());
 
+        getLocationButton.setOnClickListener(v -> getLocation());
+
+        clearMarkersButton.setOnClickListener((v -> clearMarkers()));
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Create location request
@@ -147,7 +152,6 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
             }
         };
 
-        getLocationButton.setOnClickListener(v -> getLocation());
 
         // We have have to call this on startup because we can't make a POST without a predefined
         // Location, I tried to do this in the function, but couldn't find the solution
@@ -250,6 +254,11 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void putMarker(){
         LatLng currentPosition = new LatLng(gpsLatLong.get(0), gpsLatLong.get(1));
-        gMap.addMarker(new MarkerOptions().position(currentPosition).title("Vaša lokacija"));
+        gMap.addMarker(new MarkerOptions()
+                .position(currentPosition)
+                .title(gpsLatLong.get(0).toString() + ", " +  gpsLatLong.get(1).toString()));
+    }
+    public void clearMarkers(){
+        gMap.clear();
     }
 }
