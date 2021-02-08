@@ -19,25 +19,8 @@
         android:layout_height="wrap_content"
         android:hint="ID"
         android:id="@+id/idInputEditText"
+        android:text="1"
         />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Ime naprave"
-        android:id="@+id/deviceNameInput"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Longitude"
-        android:id="@+id/longitudeInput"/>
-
-    <EditText
-        android:id="@+id/latitudeInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Latitude" />
 
     <Button
         android:id="@+id/postButton"

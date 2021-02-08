@@ -2,30 +2,30 @@ package com.learntodroid.postrequestwithjson;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -74,10 +74,18 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
 
     private PostRepository commentsRepository;
 
+    EditText getIdInput;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
+
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            buildAlertMessageNoGPS();
+        }
 
         Button getLocationButton = findViewById(R.id.getLocationButton);
 
@@ -85,6 +93,8 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         Button postButton = findViewById(R.id.postButton);
         Button getButton = findViewById(R.id.getButton);
         Button clearMarkersButton = findViewById(R.id.clearMarkersButton);
+
+        getIdInput = findViewById(R.id.idInputEditText);
 
         @SuppressLint("UseSwitchCompatOrMaterialCode")
         Switch autoPostSwitch = findViewById(R.id.autoPostSwitch);
@@ -158,7 +168,30 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         getLocation();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
+    }
+
+    private void buildAlertMessageNoGPS() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("GPS Storitev je onemogočena, ali jo želite omogočiti?")
+                .setCancelable(false)
+                .setPositiveButton("Da", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id)
+                    {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("Ne", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id)
+                    {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private void openGetActivity() {
@@ -170,11 +203,11 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         getLocation();
 
         // OBVEZNO moramo najprej iz EditText convertirati v String, ker mi podamo obliko EditText!
-        String idSend = String.valueOf(1);
+        String idSend = String.valueOf(getIdInput.getText());
         // We are using Build.ID as a unique identifier, I'm not sure how unique this actually is
         // We are not allowed to get IMEI this is a system limitation...
         // This is possibly something we can improve...
-        String deviceNameSend = String.valueOf(Build.ID);
+        String deviceNameSend = String.valueOf(Build.MODEL);
         String latitudeSend = String.valueOf(gpsLatLong.get(0));
         String longitudeSend = String.valueOf(gpsLatLong.get(1));
 
