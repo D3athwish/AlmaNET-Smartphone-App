@@ -102,7 +102,7 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         // I removed all of the input fields, because they're not needed anymore
         // We automatically build our input without user input
 
-        // TODO: Example of sent information
+        // Example of sent information
         // idInput = "2";
         // deviceNameInput = "Gasper Tine";
         // longitudeInput = "13.33337";

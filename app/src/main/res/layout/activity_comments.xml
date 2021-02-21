@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#DDEEFF">
 
 
     <TextView
@@ -26,6 +27,7 @@
         android:id="@+id/postButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#99CCFF"
         android:text="POST" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +41,9 @@
             android:text="GET"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:backgroundTint="#99CCFF"
+            />
 
         <Switch
             android:id="@+id/autoPostSwitch"
@@ -55,15 +59,20 @@
             android:id="@+id/getLocationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
             android:text="Get Location"
+            android:backgroundTint="#99CCFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/autoPostSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/autoPostSwitch"
+            app:layout_constraintVertical_bias="0.0" />
 
         <Button
             android:id="@+id/clearMarkersButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:backgroundTint="#99CCFF"
             android:text="Clear Markers"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
