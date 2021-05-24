@@ -48,7 +48,7 @@ public class GetActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(getApplicationContext(), "Getting data", Toast.LENGTH_SHORT)
+                Toast.makeText(getApplicationContext(), "Pridobivanje podatkov...", Toast.LENGTH_SHORT)
                         .show();
 
                 contactList = new ArrayList<>();

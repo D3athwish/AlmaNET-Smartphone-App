@@ -8,5 +8,5 @@ import retrofit2.http.POST;
 
 public interface PostService {
     @POST("api/values/")
-    Call<Comment> createComment(@Body Post post);
+    Call<Comment> sendPost(@Body Post post);
 }

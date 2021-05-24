@@ -2,22 +2,30 @@ package com.learntodroid.postrequestwithjson;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Post
-{
+public class Post {
     //Searlized name določa dejansko vrednost v JSON!
     @SerializedName("ID")
-    private String id;
+    private final String id;
 
     @SerializedName("Ime_naprave")
-    private String ime_naprave;
+    private final String ime_naprave;
 
     @SerializedName("Lon_input")
-    private String longitude;
+    private final String longitude;
 
     @SerializedName("Lat_input")
-    private String latitude;
+    private final String latitude;
 
-    /*
+    //Order is very important!
+    public Post(String id, String ime_naprave, String latitude, String longitude) {
+        this.id = id;
+        this.ime_naprave = ime_naprave;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+}
+
+/*
     * Referenca:
     * {
         "ID":"2",
@@ -30,31 +38,3 @@ public class Post
     *
     *
     * */
-
-
-    //Order is very important!
-    public Post(String id, String ime_naprave, String latitude, String longitude) {
-        this.id = id;
-        this.ime_naprave = ime_naprave;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-
-    //Return vrednosti
-    public String getId() {
-        return id;
-    }
-
-    public String getIme_naprave() {
-        return ime_naprave;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-}

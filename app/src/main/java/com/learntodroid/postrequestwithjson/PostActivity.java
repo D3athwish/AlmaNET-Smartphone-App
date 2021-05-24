@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -26,6 +25,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -142,17 +142,11 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
 
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
+            public void onLocationResult(@NotNull LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         currentLatitude = (float) location.getLatitude();
                         currentLongitude = (float) location.getLongitude();
-
-                        /*txtLongitude.setText(String.format(Locale.US, "%s", currentLongitude));
-                        txtLatitude.setText(String.format(Locale.US, "%s", currentLatitude));*/
 
                         if (mFusedLocationClient != null) {
                             mFusedLocationClient.removeLocationUpdates(locationCallback);
@@ -161,7 +155,6 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         };
-
 
         // We have have to call this on startup because we can't make a POST without a predefined
         // Location, I tried to do this in the function, but couldn't find the solution
@@ -176,20 +169,9 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("GPS Storitev je onemogočena, ali jo želite omogočiti?")
                 .setCancelable(false)
-                .setPositiveButton("Da", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id)
-                    {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("Ne", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id)
-                    {
-                        dialog.cancel();
-                    }
-                });
+                .setPositiveButton("Da", (dialog, id) -> startActivity(new Intent(android
+                        .provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                .setNegativeButton("Ne", (dialog, id) -> dialog.cancel());
         final AlertDialog alert = builder.create();
         alert.show();
     }
@@ -203,13 +185,13 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         getLocation();
 
         // OBVEZNO moramo najprej iz EditText convertirati v String, ker mi podamo obliko EditText!
-        String idSend = String.valueOf(getIdInput.getText());
+        String idSend = getIdInput.getText().toString();
         // We are using Build.ID as a unique identifier, I'm not sure how unique this actually is
         // We are not allowed to get IMEI this is a system limitation...
         // This is possibly something we can improve...
-        String deviceNameSend = String.valueOf(Build.MODEL);
-        String latitudeSend = String.valueOf(gpsLatLong.get(0));
-        String longitudeSend = String.valueOf(gpsLatLong.get(1));
+        String deviceNameSend = Build.MODEL;
+        String latitudeSend = gpsLatLong.get(0).toString();
+        String longitudeSend = gpsLatLong.get(1).toString();
 
         Post post = new Post(
                 idSend,
@@ -219,7 +201,7 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
         );
 
         //Don't know exactly how to implement POST without a callback right now, so yolo
-        commentsRepository.getCommentsService().createComment(post).enqueue(new Callback<Comment>(){
+        commentsRepository.getCommentsService().sendPost(post).enqueue(new Callback<Comment>(){
             @Override
             public void onResponse(@NotNull Call<Comment> call, @NotNull Response<Comment> r) {
                 Toast.makeText(getApplicationContext(), "Sending Post", Toast.LENGTH_SHORT)
@@ -243,7 +225,6 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     1000);
-
         }
         mFusedLocationClient.getLastLocation().addOnSuccessListener(PostActivity.this,
                 location -> {
@@ -278,11 +259,14 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+        LatLng centerOfSlovenia = new LatLng(46.056946, 14.505751);
+
         gMap = googleMap;
         gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         gMap.getUiSettings().setZoomControlsEnabled(true);
         gMap.getUiSettings().setZoomGesturesEnabled(true);
         gMap.getUiSettings().setCompassEnabled(true);
+        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(centerOfSlovenia, 7));
     }
 
     public void putMarker(){
