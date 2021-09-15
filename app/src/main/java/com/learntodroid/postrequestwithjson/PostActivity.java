@@ -68,7 +68,7 @@ public class PostActivity extends FragmentActivity implements OnMapReadyCallback
             sendPost();
             // Modify the first digit, according to how many seconds we want in between our POST
             // requests
-            handler.postDelayed(this, 10 * 1000);
+            handler.postDelayed(this, 60 * 1000);
         }
     };
 
